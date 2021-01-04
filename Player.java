@@ -83,34 +83,75 @@ class Player {
     }
 
 
+    public static ArrayList<ArrayList<Integer>> setPath(int x , int y , ArrayList<ArrayList<Integer>> board ){
+        board.get(x).set(y, 1);
+        return board ;
+    }
+
+
+    public static void isOccuped(int x , int  y , ArrayList<ArrayList<Integer>> board , Player player){
+        try{
+            switch(player.currMvt){
+                case "UP" :
+                    if(board.get(x).get(y-1) == 1){
+                        if(board.get(x+1).get(y) == 0){
+                            player.setMvt("RIGHT");
+                        }
+                        if(board.get(x-1).get(y) == 0){
+                            player.setMvt("LEFT");
+                        }
+                    } 
+                    break ; 
+                case "DOWN" :
+                    if(board.get(x).get(y+1) == 1){
+                        if(board.get(x-1).get(y) == 0){
+                            player.setMvt("LEFT");
+                        }
+                        if(board.get(x+1).get(y) == 0){
+                            System.err.println("COUCOU");
+                            player.setMvt("RIGHT");
+                        }
+                    }
+                    break ;
+                case "LEFT" : 
+                     if(board.get(x-1).get(y) == 1){
+                        if(board.get(x).get(y-1) == 0){
+                            player.setMvt("UP");
+                        }
+                        if(board.get(x).get(y+1) == 0){
+                            player.setMvt("DOWN");
+                        }
+                    }
+                    break ;
+                case "RIGHT" : 
+                     if(board.get(x+1).get(y) == 1){
+                       if(board.get(x).get(y-1) == 0){
+                            player.setMvt("UP");
+                        }
+                        if(board.get(x).get(y+1) == 0){
+                            player.setMvt("DOWN");
+                        }
+                    }
+                    break ;
+            }
+           
+        }catch(Exception e){
+            System.err.println("OUT OF RANGE " + e);
+        }
+    }
+
+
     public static ArrayList<ArrayList<Integer>> boardGen(){
 
        ArrayList<ArrayList<Integer>> board = new ArrayList<ArrayList<Integer>>();
+       for(int i = 0 ; i <= 30 ; i++ ){
+           ArrayList<Integer> tmp = new ArrayList<Integer>() ; 
+           for( int j = 0 ;  j <= 20 ; j++  ){
+               tmp.add(0) ; 
+            }
+            board.add(tmp);
+       }
 
-
-       //INIT BORDURE
-       for(int i = 0 ; i<21;i++){
-           ArrayList<Integer> tmp2 = new ArrayList<Integer>() ;
-           if(i == 0 || i ==20 ){
-               int value = 1 ;
-               for( int j = 0 ; j<31 ; j++){
-                   tmp2.add(value) ; 
-               }
-           }
-           else{
-               for(int j = 0 ; j<31 ; j++){
-                   if(j == 0 || j == 30 ){
-                       tmp2.add(1) ;
-                   }
-                   else{
-                       tmp2.add(0) ; 
-                   }
-               }
-           }
-        
-            board.add(tmp2) ; 
-
-        }
        return board ; 
     }
 
@@ -118,7 +159,8 @@ class Player {
 
         Scanner in = new Scanner(System.in);
         ArrayList<ArrayList<Integer>> board = Player.boardGen(); 
-        Player player1 = new Player() ; 
+        Player player1 = new Player() ;
+ 
 
 
         // game loop
@@ -154,13 +196,25 @@ class Player {
                 }
             }
 
-            
+
+            //Sauvegarde les passages des player pour les esquiver ensuite 
+            board  = Player.setPath(p1[0], p1[1], board) ;
+            board  = Player.setPath(p2[0], p2[1], board) ;
+
+
+
+            //Prise de descision est prise dans les condition selon notre numéro player 
             if( P == 0){
                 player1.escapeWall(p1[0], p1[1]);
+                Player.isOccuped(p1[0], p1[1], board , player1);
             }
             else{
                 player1.escapeWall(p2[0], p2[1]);
+                Player.isOccuped(p2[0], p2[1], board , player1);
             }
+
+
+            //Affiche notre action
             System.out.println(player1.currMvt);
 
         
